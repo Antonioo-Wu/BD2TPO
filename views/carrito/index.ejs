@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Mi Carrito - Sistema de Biblioteca</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+        .carrito-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+            margin-bottom: 10px;
+        }
+        .carrito-item:last-child {
+            border-bottom: none;
+        }
+        .libro-info {
+            flex-grow: 1;
+        }
+        .libro-titulo {
+            font-size: 18px;
+            color: #333;
+            margin-bottom: 5px;
+        }
+        .libro-autor {
+            color: #666;
+            margin-bottom: 5px;
+        }
+        .libro-disponibilidad {
+            color: #28a745;
+            font-size: 14px;
+        }
+        .acciones {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        .btn {
+            padding: 8px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            color: white;
+            font-size: 14px;
+        }
+        .btn-eliminar {
+            background-color: #dc3545;
+        }
+        .btn-eliminar:hover {
+            background-color: #c82333;
+        }
+        .btn-confirmar {
+            background-color: #28a745;
+            width: 100%;
+            padding: 15px;
+            font-size: 16px;
+            margin-top: 20px;
+        }
+        .btn-confirmar:hover {
+            background-color: #218838;
+        }
+        .btn-confirmar:disabled {
+            background-color: #6c757d;
+            cursor: not-allowed;
+        }
+        .vacio {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+        }
+        .navegacion {
+            margin-bottom: 20px;
+        }
+        .navegacion a {
+            text-decoration: none;
+            color: #007bff;
+        }
+        .navegacion a:hover {
+            text-decoration: underline;
+        }
+        .error-mensaje {
+            color: #dc3545;
+            margin-bottom: 15px;
+            display: none;
+            text-align: center;
+        }
+        .cantidad-control {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 0 15px;
+        }
+        .btn-cantidad {
+            padding: 5px 10px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .btn-cantidad:hover {
+            background-color: #0056b3;
+        }
+        .btn-cantidad:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        input[type="number"] {
+            width: 60px;
+            padding: 5px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            text-align: center;
+        }
+        input[type="number"]::-webkit-inner-spin-button,
+        input[type="number"]::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="navegacion">
+            <a href="/">← Volver al Inicio</a>
+        </div>
+        <h1>Mi Carrito</h1>
+        
+        <div id="errorMensaje" class="error-mensaje"></div>
+
+        <% if (carrito.items && carrito.items.length > 0) { %>
+            <% carrito.items.forEach(item => { %>
+                <div class="carrito-item">
+                    <div class="libro-info">
+                        <div class="libro-titulo"><%= item.libro.titulo %></div>
+                        <div class="libro-autor">por <%= item.libro.autor %></div>
+                        <div class="libro-disponibilidad">
+                            Disponibles: <%= item.libro.cantidad %>
+                        </div>
+                    </div>
+                    <div class="cantidad-control">
+                        <button type="button" 
+                                onclick="actualizarCantidad('<%= item.libro._id %>', -1, <%= item.libro.cantidad %>)" 
+                                class="btn-cantidad"
+                                <%= item.cantidad <= 1 ? 'disabled' : '' %>>
+                            -
+                        </button>
+                        <input type="number" 
+                               id="cantidad-<%= item.libro._id %>" 
+                               value="<%= item.cantidad %>" 
+                               min="1" 
+                               max="<%= item.libro.cantidad %>"
+                               onchange="validarCantidad(this, <%= item.libro.cantidad %>)"
+                               readonly>
+                        <button type="button" 
+                                onclick="actualizarCantidad('<%= item.libro._id %>', 1, <%= item.libro.cantidad %>)" 
+                                class="btn-cantidad"
+                                <%= item.cantidad >= item.libro.cantidad ? 'disabled' : '' %>>
+                            +
+                        </button>
+                    </div>
+                    <div class="acciones">
+                        <button class="btn btn-eliminar" onclick="eliminarDelCarrito('<%= item.libro._id %>')">
+                            Eliminar
+                        </button>
+                    </div>
+                </div>
+            <% }); %>
+
+            <button id="btnConfirmar" onclick="confirmarPrestamo()" class="btn btn-confirmar">
+                Confirmar Préstamo
+            </button>
+        <% } else { %>
+            <div class="vacio">
+                <p>Tu carrito está vacío</p>
+                <a href="/">Volver al Inicio</a>
+            </div>
+        <% } %>
+    </div>
+
+    <script>
+        async function eliminarDelCarrito(libroId) {
+            try {
+                const response = await fetch(`/carrito/eliminar/${libroId}`, {
+                    method: 'DELETE'
+                });
+                if (response.ok) {
+                    location.reload();
+                } else {
+                    const error = await response.json();
+                    mostrarError(error.error || 'Error al eliminar del carrito');
+                }
+            } catch (error) {
+                mostrarError('Error al eliminar del carrito');
+            }
+        }
+
+        function validarCantidad(input, maxCantidad) {
+            let valor = parseInt(input.value);
+            if (isNaN(valor) || valor < 1) {
+                valor = 1;
+            } else if (valor > maxCantidad) {
+                valor = maxCantidad;
+            }
+            input.value = valor;
+        }
+
+        async function actualizarCantidad(libroId, cambio, maxCantidad) {
+            const input = document.getElementById(`cantidad-${libroId}`);
+            let nuevaCantidad = parseInt(input.value) + cambio;
+            
+            if (nuevaCantidad < 1) nuevaCantidad = 1;
+            if (nuevaCantidad > maxCantidad) nuevaCantidad = maxCantidad;
+            
+            try {
+                const response = await fetch(`/carrito/actualizar/${libroId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ cantidad: nuevaCantidad })
+                });
+                
+                if (response.ok) {
+                    input.value = nuevaCantidad;
+                    const btnMenos = input.previousElementSibling;
+                    const btnMas = input.nextElementSibling;
+                    btnMenos.disabled = nuevaCantidad <= 1;
+                    btnMas.disabled = nuevaCantidad >= maxCantidad;
+                } else {
+                    const error = await response.json();
+                    mostrarError(error.error || 'Error al actualizar cantidad');
+                }
+            } catch (error) {
+                mostrarError('Error al actualizar cantidad');
+            }
+        }
+
+        async function confirmarPrestamo() {
+            try {
+                const btnConfirmar = document.getElementById('btnConfirmar');
+                btnConfirmar.disabled = true;
+                btnConfirmar.textContent = 'Procesando...';
+
+                const response = await fetch('/carrito/confirmar', {
+                    method: 'POST'
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    alert('¡Préstamo confirmado exitosamente!');
+                    window.location.href = '/libros';
+                } else {
+                    mostrarError(data.error || 'Error al confirmar el préstamo');
+                    btnConfirmar.disabled = false;
+                    btnConfirmar.textContent = 'Confirmar Préstamo';
+                }
+            } catch (error) {
+                mostrarError('Error al procesar el préstamo');
+                btnConfirmar.disabled = false;
+                btnConfirmar.textContent = 'Confirmar Préstamo';
+            }
+        }
+
+        function mostrarError(mensaje) {
+            const errorMensaje = document.getElementById('errorMensaje');
+            errorMensaje.textContent = mensaje;
+            errorMensaje.style.display = 'block';
+            setTimeout(() => {
+                errorMensaje.style.display = 'none';
+            }, 5000);
+        }
+    </script>
+</body>
+</html> 

@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Reporte de Préstamos - Sistema de Biblioteca</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        h1, h2 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+        .navegacion {
+            margin-bottom: 20px;
+        }
+        .navegacion a {
+            text-decoration: none;
+            color: #007bff;
+            margin-right: 15px;
+        }
+        .navegacion a:hover {
+            text-decoration: underline;
+        }
+        .seccion {
+            margin-bottom: 30px;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background-color: #fff;
+        }
+        .estadisticas-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        .estadistica-item {
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            background-color: #f8f9fa;
+        }
+        .estadistica-numero {
+            font-size: 24px;
+            font-weight: bold;
+            color: #007bff;
+            margin-bottom: 5px;
+        }
+        .estadistica-label {
+            color: #666;
+            font-size: 14px;
+        }
+        .tabla {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        .tabla th, .tabla td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        .tabla th {
+            background-color: #f8f9fa;
+            font-weight: bold;
+            color: #333;
+        }
+        .tabla tr:hover {
+            background-color: #f5f5f5;
+        }
+        .badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        .badge-success {
+            background-color: #28a745;
+            color: white;
+        }
+        .badge-warning {
+            background-color: #ffc107;
+            color: #333;
+        }
+        .badge-danger {
+            background-color: #dc3545;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="navegacion">
+            <a href="/">← Volver al Inicio</a>
+            <a href="/prestamos/admin">Ver Préstamos</a>
+        </div>
+
+        <h1>Reporte de Préstamos</h1>
+
+        <!-- Estadísticas Generales -->
+        <div class="seccion">
+            <h2>Estadísticas Generales</h2>
+            <div class="estadisticas-grid">
+                <div class="estadistica-item">
+                    <div class="estadistica-numero"><%= estadisticas.totalPrestamos %></div>
+                    <div class="estadistica-label">Total de Préstamos</div>
+                </div>
+                <div class="estadistica-item">
+                    <div class="estadistica-numero"><%= estadisticas.prestamosActivos %></div>
+                    <div class="estadistica-label">Préstamos Activos</div>
+                </div>
+                <div class="estadistica-item">
+                    <div class="estadistica-numero"><%= estadisticas.prestamosDevueltos %></div>
+                    <div class="estadistica-label">Préstamos Devueltos</div>
+                </div>
+                <div class="estadistica-item">
+                    <div class="estadistica-numero"><%= estadisticas.totalLibros %></div>
+                    <div class="estadistica-label">Total de Libros</div>
+                </div>
+                <div class="estadistica-item">
+                    <div class="estadistica-numero"><%= estadisticas.librosDisponibles %></div>
+                    <div class="estadistica-label">Libros Disponibles</div>
+                </div>
+                <div class="estadistica-item">
+                    <div class="estadistica-numero"><%= estadisticas.totalEjemplares %></div>
+                    <div class="estadistica-label">Total de Ejemplares</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Libros Más Prestados -->
+        <div class="seccion">
+            <h2>Libros Más Prestados</h2>
+            <table class="tabla">
+                <thead>
+                    <tr>
+                        <th>Título</th>
+                        <th>Autor</th>
+                        <th>Veces Prestado</th>
+                        <th>Disponibilidad Actual</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% librosMasPrestados.forEach(libro => { %>
+                        <tr>
+                            <td><%= libro.titulo %></td>
+                            <td><%= libro.autor %></td>
+                            <td><%= libro.cantidadPrestamos %></td>
+                            <td>
+                                <% if (libro.cantidadActual > 5) { %>
+                                    <span class="badge badge-success"><%= libro.cantidadActual %> disponibles</span>
+                                <% } else if (libro.cantidadActual > 0) { %>
+                                    <span class="badge badge-warning"><%= libro.cantidadActual %> disponibles</span>
+                                <% } else { %>
+                                    <span class="badge badge-danger">No disponible</span>
+                                <% } %>
+                            </td>
+                        </tr>
+                    <% }); %>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Usuarios Más Activos -->
+        <div class="seccion">
+            <h2>Usuarios Más Activos</h2>
+            <table class="tabla">
+                <thead>
+                    <tr>
+                        <th>Usuario</th>
+                        <th>Préstamos Activos</th>
+                        <th>Préstamos Devueltos</th>
+                        <th>Total de Libros</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% usuariosMasActivos.forEach(usuario => { %>
+                        <tr>
+                            <td><%= usuario.usuario %></td>
+                            <td>
+                                <% if (usuario.prestamosActivos > 0) { %>
+                                    <span class="badge badge-warning"><%= usuario.prestamosActivos %></span>
+                                <% } else { %>
+                                    <span class="badge badge-success">0</span>
+                                <% } %>
+                            </td>
+                            <td><span class="badge badge-success"><%= usuario.prestamosDevueltos %></span></td>
+                            <td><%= usuario.totalLibros %></td>
+                        </tr>
+                    <% }); %>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</body>
+</html> 

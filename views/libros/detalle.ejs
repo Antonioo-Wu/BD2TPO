@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title><%= libro.titulo %> - Detalles del Libro</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        .navegacion {
+            margin-bottom: 20px;
+        }
+        .navegacion a {
+            text-decoration: none;
+            color: #007bff;
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 28px;
+        }
+        .libro-info {
+            margin-bottom: 30px;
+        }
+        .libro-campo {
+            margin-bottom: 15px;
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+        }
+        .libro-campo:last-child {
+            border-bottom: none;
+        }
+        .campo-titulo {
+            font-weight: bold;
+            color: #666;
+            margin-bottom: 5px;
+        }
+        .campo-valor {
+            color: #333;
+            font-size: 16px;
+        }
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            color: white;
+            background-color: #17a2b8;
+            text-decoration: none;
+            display: inline-block;
+        }
+        .btn:hover {
+            background-color: #138496;
+        }
+        .acciones {
+            margin-top: 20px;
+            display: flex;
+            gap: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="navegacion">
+            <a href="/libros">← Volver al Catálogo</a>
+        </div>
+
+        <h1><%= libro.titulo %></h1>
+
+        <div class="libro-info">
+            <div class="libro-campo">
+                <div class="campo-titulo">Autor</div>
+                <div class="campo-valor"><%= libro.autor %></div>
+            </div>
+
+            <div class="libro-campo">
+                <div class="campo-titulo">ISBN</div>
+                <div class="campo-valor"><%= libro.isbn %></div>
+            </div>
+
+            <% if (libro.categoria) { %>
+            <div class="libro-campo">
+                <div class="campo-titulo">Categoría</div>
+                <div class="campo-valor"><%= libro.categoria.nombre %></div>
+            </div>
+            <% } %>
+
+            <% if (libro.descripcion) { %>
+            <div class="libro-campo">
+                <div class="campo-titulo">Descripción</div>
+                <div class="campo-valor"><%= libro.descripcion %></div>
+            </div>
+            <% } %>
+
+            <% if (libro.fechaPublicacion) { %>
+            <div class="libro-campo">
+                <div class="campo-titulo">Fecha de Publicación</div>
+                <div class="campo-valor">
+                    <%= new Date(libro.fechaPublicacion).toLocaleDateString() %>
+                </div>
+            </div>
+            <% } %>
+        </div>
+
+        <div class="acciones">
+            <% if (usuario.rol !== 'admin') { %>
+                <form action="/carrito/agregar/<%= libro._id %>" method="POST" style="display: inline;">
+                    <button type="submit" class="btn">Agregar al Carrito</button>
+                </form>
+                <a href="/carrito" class="btn">Ver Carrito</a>
+            <% } else { %>
+                <a href="/libros/editar/<%= libro._id %>" class="btn">Editar Libro</a>
+            <% } %>
+        </div>
+    </div>
+</body>
+</html> 

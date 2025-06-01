@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Libros - Sistema de Biblioteca</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+        .busqueda-container {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-row {
+            display: flex;
+            gap: 15px;
+            align-items: flex-end;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #555;
+        }
+        input, select {
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        input[type="search"] {
+            width: 300px;
+        }
+        .btn {
+            padding: 8px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            color: white;
+        }
+        .btn-primary {
+            background-color: #007bff;
+        }
+        .btn-primary:hover {
+            background-color: #0056b3;
+        }
+        .btn-success {
+            background-color: #28a745;
+        }
+        .btn-success:hover {
+            background-color: #218838;
+        }
+        .libros-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        .libro-card {
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 15px;
+            transition: transform 0.2s;
+        }
+        .libro-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        .libro-titulo {
+            font-size: 18px;
+            color: #333;
+            margin-bottom: 10px;
+        }
+        .libro-autor {
+            color: #666;
+            margin-bottom: 10px;
+        }
+        .libro-isbn {
+            font-size: 12px;
+            color: #999;
+        }
+        .acciones {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        .acciones a, .acciones button {
+            flex: 1;
+            text-align: center;
+            padding: 5px;
+            text-decoration: none;
+            border-radius: 4px;
+            font-size: 12px;
+        }
+        .libro-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        .libro-card {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 15px;
+            background: white;
+        }
+        .libro-titulo {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #333;
+        }
+        .libro-autor {
+            color: #666;
+            margin-bottom: 8px;
+        }
+        .libro-isbn {
+            color: #888;
+            font-size: 14px;
+            margin-bottom: 8px;
+        }
+        .libro-categoria {
+            color: #007bff;
+            font-size: 14px;
+            margin-bottom: 15px;
+        }
+        .btn {
+            padding: 8px 12px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            margin-right: 5px;
+        }
+        .btn-editar {
+            background-color: #28a745;
+            color: white;
+        }
+        .btn-eliminar {
+            background-color: #dc3545;
+            color: white;
+        }
+        .btn-agregar {
+            background-color: #28a745;
+            color: white;
+            padding: 10px 15px;
+            font-size: 16px;
+            text-decoration: none;
+            display: inline-block;
+            border-radius: 4px;
+        }
+        .btn-agregar:hover {
+            background-color: #218838;
+        }
+        .btn-carrito {
+            background-color: #17a2b8;
+            color: white;
+        }
+        .btn-info {
+            background-color: #17a2b8;
+            color: white;
+            text-decoration: none;
+            margin-right: 5px;
+        }
+        .logout-btn {
+            padding: 8px 15px;
+            background-color: #dc3545;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        .logout-btn:hover {
+            background-color: #c82333;
+        }
+        .navegacion {
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .navegacion-izquierda {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        .navegacion-derecha {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        .navegacion a {
+            text-decoration: none;
+            color: #007bff;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+        }
+        .modal-content {
+            background-color: white;
+            margin: 15% auto;
+            padding: 20px;
+            border-radius: 8px;
+            width: 80%;
+            max-width: 500px;
+        }
+        .close {
+            float: right;
+            cursor: pointer;
+            font-size: 24px;
+        }
+        .libro-cantidad {
+            margin: 10px 0;
+            font-size: 14px;
+        }
+        .disponible {
+            color: #28a745;
+            font-weight: bold;
+        }
+        .no-disponible {
+            color: #dc3545;
+            font-weight: bold;
+        }
+        button[disabled] {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        .btn-prestamos {
+            background-color: #6f42c1;
+            color: white;
+            padding: 10px 15px;
+            text-decoration: none;
+            border-radius: 4px;
+            margin-right: 10px;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            transition: background-color 0.3s;
+        }
+        .btn-prestamos:hover {
+            background-color: #5a32a3;
+        }
+        .cantidad-control {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            justify-content: center;
+            margin: 10px 0;
+        }
+        .btn-cantidad {
+            padding: 5px 10px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .btn-cantidad:hover {
+            background-color: #0056b3;
+        }
+        .btn-cantidad:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        input[type="number"] {
+            padding: 5px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            text-align: center;
+        }
+        input[type="number"]::-webkit-inner-spin-button,
+        input[type="number"]::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="navegacion">
+            <div class="navegacion-izquierda">
+                <a href="/">← Volver al Inicio</a>
+            </div>
+            <div class="navegacion-derecha">
+                <% if (usuario.rol === 'admin') { %>
+                    <a href="/prestamos/admin" class="btn-prestamos">Ver Préstamos de Usuarios 📚</a>
+                    <a href="/prestamos/reporte" class="btn-prestamos">Ver Reporte 📊</a>
+                    <a href="/libros/nuevo" class="btn-agregar">Agregar Nuevo Libro</a>
+                    <a href="/auth/logout" class="logout-btn">Cerrar Sesión</a>
+                <% } else { %>
+                    <a href="/prestamos/activos" class="btn-prestamos">Mis Préstamos 📚</a>
+                    <a href="/carrito" class="btn-agregar">Ver Carrito 🛒</a>
+                <% } %>
+            </div>
+        </div>
+        
+        <h1><%= usuario.rol === 'admin' ? 'Gestión de Libros' : 'Catálogo de Libros' %></h1>
+        
+        <% if (typeof error !== 'undefined') { %>
+            <div class="error"><%= error %></div>
+        <% } %>
+
+        <!-- Formulario de búsqueda y filtros -->
+        <div class="busqueda-container">
+            <form action="/libros" method="GET">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="busqueda">Buscar:</label>
+                        <input type="search" id="busqueda" name="busqueda" 
+                               placeholder="Título, autor, ISBN..." 
+                               value="<%= busqueda %>">
+                    </div>
+                    <div class="form-group">
+                        <label for="ordenar">Ordenar por:</label>
+                        <select id="ordenar" name="ordenar">
+                            <option value="">Sin ordenar</option>
+                            <option value="titulo_asc" <%= ordenar === 'titulo_asc' ? 'selected' : '' %>>
+                                Título (A-Z)
+                            </option>
+                            <option value="titulo_desc" <%= ordenar === 'titulo_desc' ? 'selected' : '' %>>
+                                Título (Z-A)
+                            </option>
+                            <option value="autor_asc" <%= ordenar === 'autor_asc' ? 'selected' : '' %>>
+                                Autor (A-Z)
+                            </option>
+                            <option value="autor_desc" <%= ordenar === 'autor_desc' ? 'selected' : '' %>>
+                                Autor (Z-A)
+                            </option>
+                            <option value="fecha_asc" <%= ordenar === 'fecha_asc' ? 'selected' : '' %>>
+                                Fecha (Más antiguo)
+                            </option>
+                            <option value="fecha_desc" <%= ordenar === 'fecha_desc' ? 'selected' : '' %>>
+                                Fecha (Más reciente)
+                            </option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Buscar</button>
+                </div>
+            </form>
+        </div>
+
+        <div class="libro-grid">
+            <% libros.forEach(libro => { %>
+                <div class="libro-card" data-id="<%= libro._id %>">
+                    <div class="libro-titulo">
+                        <a href="/libros/<%= libro._id %>" style="text-decoration: none; color: inherit;">
+                            <%= libro.titulo %>
+                        </a>
+                    </div>
+                    <div class="libro-autor">Autor: <%= libro.autor %></div>
+                    <div class="libro-isbn">ISBN: <%= libro.isbn %></div>
+                    <div class="libro-cantidad">
+                        Disponibles: <span class="<%= libro.cantidad > 0 ? 'disponible' : 'no-disponible' %>">
+                            <%= libro.cantidad %>
+                        </span>
+                    </div>
+                    <% if (libro.categoria) { %>
+                        <div class="libro-categoria">Categoría: <%= libro.categoria.nombre %></div>
+                    <% } %>
+                    <% if (usuario.rol === 'admin') { %>
+                        <button class="btn btn-editar" onclick="editarLibro('<%= libro._id %>')">Editar</button>
+                        <button class="btn btn-eliminar" onclick="eliminarLibro('<%= libro._id %>')">Eliminar</button>
+                    <% } else { %>
+                        <a href="/libros/<%= libro._id %>" class="btn btn-info" style="background-color: #17a2b8; color: white; text-decoration: none; margin-right: 5px;">Ver Detalles</a>
+                        <button 
+                            onclick="agregarAlCarrito('<%= libro._id %>')" 
+                            class="btn btn-carrito"
+                            <%= libro.cantidad <= 0 ? 'disabled' : '' %>
+                            style="<%= libro.cantidad <= 0 ? 'opacity: 0.5; cursor: not-allowed;' : '' %>"
+                        >
+                            <%= libro.cantidad > 0 ? 'Agregar al Carrito' : 'No Disponible' %>
+                        </button>
+                    <% } %>
+                </div>
+            <% }); %>
+        </div>
+    </div>
+
+    <% if (usuario.rol === 'admin') { %>
+    <div id="confirmarEliminar" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Confirmar Eliminación</h2>
+            <p>¿Estás seguro de que deseas eliminar este libro?</p>
+            <button class="btn btn-eliminar" onclick="confirmarEliminacion()">Sí, eliminar</button>
+            <button class="btn" onclick="cerrarModal()">Cancelar</button>
+        </div>
+    </div>
+    <% } %>
+
+    <script>
+        <% if (usuario.rol === 'admin') { %>
+        let libroIdAEliminar = null;
+        const modal = document.getElementById('confirmarEliminar');
+        const span = document.getElementsByClassName('close')[0];
+
+        function editarLibro(id) {
+            window.location.href = `/libros/editar/${id}`;
+        }
+
+        function eliminarLibro(id) {
+            libroIdAEliminar = id;
+            modal.style.display = 'block';
+        }
+
+        function confirmarEliminacion() {
+            if (libroIdAEliminar) {
+                fetch(`/libros/${libroIdAEliminar}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Error en la respuesta del servidor');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.mensaje) {
+                        const elemento = document.querySelector(`[data-id="${libroIdAEliminar}"]`);
+                        if (elemento) {
+                            elemento.remove();
+                        }
+                        cerrarModal();
+                    } else {
+                        throw new Error('No se recibió confirmación del servidor');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Error al eliminar el libro: ' + error.message);
+                });
+            }
+        }
+
+        function cerrarModal() {
+            modal.style.display = 'none';
+            libroIdAEliminar = null;
+        }
+
+        span.onclick = cerrarModal;
+
+        window.onclick = function(event) {
+            if (event.target == modal) {
+                cerrarModal();
+            }
+        }
+        <% } %>
+
+        async function agregarAlCarrito(libroId) {
+            try {
+                const response = await fetch(`/carrito/agregar/${libroId}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                if (!response.ok) {
+                    const data = await response.json();
+                    throw new Error(data.error || 'Error al agregar al carrito');
+                }
+                
+                alert('Libro agregado al carrito');
+                location.reload();
+            } catch (error) {
+                console.error('Error:', error);
+                alert(error.message || 'Error al agregar al carrito');
+            }
+        }
+    </script>
+</body>
+</html> 

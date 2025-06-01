@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Editar Libro - Sistema de Biblioteca</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #555;
+        }
+        input, textarea {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        textarea {
+            height: 100px;
+            resize: vertical;
+        }
+        .btn {
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            color: white;
+        }
+        .btn-primary {
+            background-color: #007bff;
+        }
+        .btn-primary:hover {
+            background-color: #0056b3;
+        }
+        .navegacion {
+            margin-bottom: 20px;
+        }
+        .navegacion a {
+            text-decoration: none;
+            color: #007bff;
+        }
+        .navegacion a:hover {
+            text-decoration: underline;
+        }
+        .error {
+            color: #dc3545;
+            margin-bottom: 15px;
+            display: none;
+        }
+        .cantidad-control {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .cantidad-control input[type="number"] {
+            width: 80px;
+            text-align: center;
+        }
+        .btn-cantidad {
+            padding: 8px 15px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        .btn-cantidad:hover {
+            background-color: #0056b3;
+        }
+        input[type="number"]::-webkit-inner-spin-button,
+        input[type="number"]::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="navegacion">
+            <a href="/libros">← Volver a Libros</a>
+        </div>
+        <h1>Editar Libro</h1>
+        
+        <div id="errorMensaje" class="error"></div>
+
+        <form id="editarLibroForm">
+            <div class="form-group">
+                <label for="titulo">Título *</label>
+                <input type="text" id="titulo" name="titulo" value="<%= libro.titulo %>" required>
+            </div>
+
+            <div class="form-group">
+                <label for="autor">Autor *</label>
+                <input type="text" id="autor" name="autor" value="<%= libro.autor %>" required>
+            </div>
+
+            <div class="form-group">
+                <label for="isbn">ISBN *</label>
+                <input type="text" id="isbn" name="isbn" value="<%= libro.isbn %>" required>
+            </div>
+
+            <div class="form-group">
+                <label for="cantidad">Cantidad Disponible *</label>
+                <div class="cantidad-control">
+                    <button type="button" onclick="decrementarCantidad()" class="btn-cantidad">-</button>
+                    <input type="number" id="cantidad" name="cantidad" value="<%= libro.cantidad %>" min="0" required>
+                    <button type="button" onclick="incrementarCantidad()" class="btn-cantidad">+</button>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="descripcion">Descripción</label>
+                <textarea id="descripcion" name="descripcion"><%= libro.descripcion || '' %></textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="fechaPublicacion">Fecha de Publicación</label>
+                <input type="date" id="fechaPublicacion" name="fechaPublicacion" 
+                    value="<%= libro.fechaPublicacion ? libro.fechaPublicacion.toISOString().split('T')[0] : '' %>">
+            </div>
+
+            <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+        </form>
+    </div>
+
+    <script>
+        function incrementarCantidad() {
+            const input = document.getElementById('cantidad');
+            input.value = parseInt(input.value) + 1;
+        }
+
+        function decrementarCantidad() {
+            const input = document.getElementById('cantidad');
+            const nuevoValor = parseInt(input.value) - 1;
+            if (nuevoValor >= 0) {
+                input.value = nuevoValor;
+            }
+        }
+
+        document.getElementById('editarLibroForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const errorMensaje = document.getElementById('errorMensaje');
+            
+            try {
+                const formData = {
+                    titulo: document.getElementById('titulo').value,
+                    autor: document.getElementById('autor').value,
+                    isbn: document.getElementById('isbn').value,
+                    cantidad: parseInt(document.getElementById('cantidad').value),
+                    descripcion: document.getElementById('descripcion').value,
+                    fechaPublicacion: document.getElementById('fechaPublicacion').value || null
+                };
+
+                console.log('Enviando datos:', formData); 
+
+                const response = await fetch('/libros/<%= libro._id %>', {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify(formData)
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    console.log('Respuesta exitosa:', data); 
+                    window.location.href = '/libros';
+                } else {
+                    console.error('Error en la respuesta:', data); 
+                    errorMensaje.textContent = data.error || 'Error al actualizar el libro';
+                    errorMensaje.style.display = 'block';
+                }
+            } catch (error) {
+                console.error('Error en la petición:', error); 
+                errorMensaje.textContent = 'Error al actualizar el libro';
+                errorMensaje.style.display = 'block';
+            }
+        });
+    </script>
+</body>
+</html> 

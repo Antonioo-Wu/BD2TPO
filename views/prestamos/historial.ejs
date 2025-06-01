@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Historial de Préstamos - Sistema de Biblioteca</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+        .prestamo-item {
+            border: 1px solid #ddd;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 4px;
+        }
+        .libro-titulo {
+            font-size: 18px;
+            color: #333;
+            margin-bottom: 5px;
+        }
+        .libro-autor {
+            color: #666;
+            margin-bottom: 5px;
+        }
+        .estado {
+            font-weight: bold;
+            margin-top: 10px;
+        }
+        .estado-devuelto {
+            color: #28a745;
+        }
+        .estado-prestamo {
+            color: #007bff;
+        }
+        .navegacion {
+            margin-bottom: 20px;
+        }
+        .navegacion a {
+            text-decoration: none;
+            color: #007bff;
+            margin-right: 15px;
+        }
+        .navegacion a:hover {
+            text-decoration: underline;
+        }
+        .sin-prestamos {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+        }
+        .cantidad {
+            color: #666;
+            margin: 5px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="navegacion">
+            <a href="/">← Volver al Inicio</a>
+            <a href="/prestamos/activos">Ver Préstamos Activos</a>
+        </div>
+        
+        <h1>Historial de Préstamos</h1>
+
+        <% if (prestamos && prestamos.length > 0) { %>
+            <% prestamos.forEach(prestamo => { %>
+                <div class="prestamo-item">
+                    <div class="libro-titulo"><%= prestamo.libro.titulo %></div>
+                    <div class="libro-autor">por <%= prestamo.libro.autor %></div>
+                    <div class="cantidad">Cantidad: <%= prestamo.cantidad %></div>
+                    <div>
+                        Prestado el: <%= prestamo.fechaPrestamo.toLocaleDateString() %>
+                        <%= prestamo.fechaPrestamo.toLocaleTimeString() %>
+                    </div>
+                    <div>
+                        Fecha de devolución: <%= prestamo.fechaDevolucion.toLocaleDateString() %>
+                        <%= prestamo.fechaDevolucion.toLocaleTimeString() %>
+                    </div>
+                    <div class="estado <%= prestamo.devuelto ? 'estado-devuelto' : 'estado-prestamo' %>">
+                        <%= prestamo.devuelto ? 'Devuelto' : 'En préstamo' %>
+                    </div>
+                </div>
+            <% }); %>
+        <% } else { %>
+            <div class="sin-prestamos">
+                <p>No tienes historial de préstamos</p>
+                <a href="/">Volver al Inicio</a>
+            </div>
+        <% } %>
+    </div>
+</body>
+</html> 

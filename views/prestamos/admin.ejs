@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Gestión de Préstamos - Sistema de Biblioteca</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        h1, h2, h3 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+        .usuario-seccion {
+            margin-bottom: 30px;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+        .usuario-header {
+            background-color: #f8f9fa;
+            padding: 10px;
+            margin: -20px -20px 20px -20px;
+            border-radius: 8px 8px 0 0;
+            border-bottom: 1px solid #ddd;
+        }
+        .prestamo-item {
+            border: 1px solid #ddd;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 4px;
+            background-color: white;
+        }
+        .prestamos-grupo {
+            margin-bottom: 20px;
+        }
+        .libro-titulo {
+            font-size: 18px;
+            color: #333;
+            margin-bottom: 5px;
+        }
+        .libro-autor {
+            color: #666;
+            margin-bottom: 5px;
+        }
+        .estado {
+            font-weight: bold;
+            margin-top: 10px;
+        }
+        .estado-activo {
+            color: #007bff;
+        }
+        .estado-devuelto {
+            color: #28a745;
+        }
+        .navegacion {
+            margin-bottom: 20px;
+        }
+        .navegacion a {
+            text-decoration: none;
+            color: #007bff;
+            margin-right: 15px;
+        }
+        .navegacion a:hover {
+            text-decoration: underline;
+        }
+        .cantidad {
+            color: #666;
+            margin: 5px 0;
+        }
+        .tiempo-restante {
+            color: #28a745;
+            font-weight: bold;
+        }
+        .tiempo-vencido {
+            color: #dc3545;
+            font-weight: bold;
+        }
+        .resumen {
+            margin-bottom: 10px;
+            color: #666;
+        }
+        .sin-prestamos {
+            color: #666;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="navegacion">
+            <a href="/">← Volver al Inicio</a>
+        </div>
+        
+        <h1>Gestión de Préstamos</h1>
+
+        <% if (Object.keys(prestamosPorUsuario).length > 0) { %>
+            <% for (const usuario in prestamosPorUsuario) { %>
+                <div class="usuario-seccion">
+                    <div class="usuario-header">
+                        <h2>Usuario: <%= usuario %></h2>
+                        <div class="resumen">
+                            Préstamos activos: <%= prestamosPorUsuario[usuario].activos.length %>
+                            | Historial: <%= prestamosPorUsuario[usuario].historial.length %>
+                        </div>
+                    </div>
+
+                    <% if (prestamosPorUsuario[usuario].activos.length > 0) { %>
+                        <div class="prestamos-grupo">
+                            <h3>Préstamos Activos</h3>
+                            <% prestamosPorUsuario[usuario].activos.forEach(prestamo => { %>
+                                <div class="prestamo-item">
+                                    <div class="libro-titulo"><%= prestamo.libro.titulo %></div>
+                                    <div class="libro-autor">por <%= prestamo.libro.autor %></div>
+                                    <div class="cantidad">Cantidad: <%= prestamo.cantidad %></div>
+                                    <div>
+                                        Prestado el: <%= prestamo.fechaPrestamo.toLocaleDateString() %>
+                                        <%= prestamo.fechaPrestamo.toLocaleTimeString() %>
+                                    </div>
+                                    <div>
+                                        Fecha de devolución: <%= prestamo.fechaDevolucion.toLocaleDateString() %>
+                                        <%= prestamo.fechaDevolucion.toLocaleTimeString() %>
+                                    </div>
+                                    <div id="tiempo-<%= prestamo._id %>"></div>
+                                </div>
+                            <% }); %>
+                        </div>
+                    <% } %>
+
+                    <% if (prestamosPorUsuario[usuario].historial.length > 0) { %>
+                        <div class="prestamos-grupo">
+                            <h3>Historial de Préstamos</h3>
+                            <% prestamosPorUsuario[usuario].historial.forEach(prestamo => { %>
+                                <div class="prestamo-item">
+                                    <div class="libro-titulo"><%= prestamo.libro.titulo %></div>
+                                    <div class="libro-autor">por <%= prestamo.libro.autor %></div>
+                                    <div class="cantidad">Cantidad: <%= prestamo.cantidad %></div>
+                                    <div>
+                                        Prestado el: <%= prestamo.fechaPrestamo.toLocaleDateString() %>
+                                        <%= prestamo.fechaPrestamo.toLocaleTimeString() %>
+                                    </div>
+                                    <div>
+                                        Fecha de devolución: <%= prestamo.fechaDevolucion.toLocaleDateString() %>
+                                        <%= prestamo.fechaDevolucion.toLocaleTimeString() %>
+                                    </div>
+                                    <div class="estado estado-devuelto">Devuelto</div>
+                                </div>
+                            <% }); %>
+                        </div>
+                    <% } %>
+                </div>
+            <% } %>
+
+            <script>
+                function actualizarTiempoRestante() {
+                    <% for (const usuario in prestamosPorUsuario) { %>
+                        <% prestamosPorUsuario[usuario].activos.forEach(prestamo => { %>
+                            const fechaDevolucion<%= prestamo._id %> = new Date('<%= prestamo.fechaDevolucion.toISOString() %>');
+                            const ahora = new Date();
+                            const diferencia = fechaDevolucion<%= prestamo._id %> - ahora;
+                            
+                            const elemento = document.getElementById('tiempo-<%= prestamo._id %>');
+                            
+                            if (diferencia > 0) {
+                                const minutos = Math.floor(diferencia / 60000);
+                                const segundos = Math.floor((diferencia % 60000) / 1000);
+                                elemento.textContent = `Tiempo restante: ${minutos}m ${segundos}s`;
+                                elemento.className = 'tiempo-restante';
+                            } else {
+                                elemento.textContent = 'Préstamo vencido';
+                                elemento.className = 'tiempo-vencido';
+                            }
+                        <% }); %>
+                    <% } %>
+                }
+
+                setInterval(actualizarTiempoRestante, 1000);
+                actualizarTiempoRestante();
+            </script>
+        <% } else { %>
+            <div class="sin-prestamos">
+                <p>No hay préstamos registrados en el sistema</p>
+            </div>
+        <% } %>
+    </div>
+</body>
+</html> 
