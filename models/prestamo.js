@@ -24,7 +24,8 @@ const prestamoSchema = new mongoose.Schema({
         type: Date,
         default: function() {
             const fecha = new Date();
-            fecha.setMinutes(fecha.getMinutes() + 5);
+            fecha.setSeconds(fecha.getSecounds() + 5);
+            //fecha.setMinutes(fecha.getMinutes() + 5);
             
             return fecha;
         }
