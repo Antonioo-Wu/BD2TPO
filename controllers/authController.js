@@ -1,4 +1,5 @@
-const UsuarioRedis = require('../models/usuarioRedis');
+const Usuario = require('../models/usuario');
+const RedisService = require('../services/redisService');
 
 exports.getLoginForm = (req, res) => {
     if (req.session.usuario) {
@@ -18,33 +19,34 @@ exports.registro = async (req, res) => {
     try {
         const { username, password, confirmPassword, rol } = req.body;
 
-        
         if (password !== confirmPassword) {
             return res.render('auth/registro', { 
                 error: 'Las contraseñas no coinciden' 
             });
         }
 
-        
-        const nuevoUsuario = await UsuarioRedis.crear({
+        const nuevoUsuario = await Usuario.create({
             username,
-            password,
+            password, // Nota: En una aplicación real, deberías hashear la contraseña
             rol
         });
 
-        
-        req.session.usuario = {
+        const datosSession = {
             username: nuevoUsuario.username,
             rol: nuevoUsuario.rol
         };
 
-        
+        req.session.usuario = datosSession;
+        await RedisService.guardarSesion(req.sessionID, datosSession);
+
         res.redirect(nuevoUsuario.rol === 'admin' ? '/libros' : '/');
 
     } catch (error) {
-        res.render('auth/registro', { 
-            error: error.message || 'Error al crear el usuario' 
-        });
+        let mensajeError = 'Error al crear el usuario';
+        if (error.code === 11000) { // Error de MongoDB para duplicados
+            mensajeError = 'El nombre de usuario ya existe';
+        }
+        res.render('auth/registro', { error: mensajeError });
     }
 };
 
@@ -52,18 +54,21 @@ exports.login = async (req, res) => {
     try {
         const { username, password } = req.body;
         
-        const usuario = await UsuarioRedis.buscarPorUsername(username);
+        const usuario = await Usuario.findOne({ username });
         
-        if (!usuario || usuario.password !== password) {
+        if (!usuario || usuario.password !== password) { // Nota: En una aplicación real, deberías comparar hashes
             return res.render('auth/login', { 
                 error: 'Usuario o contraseña incorrectos' 
             });
         }
 
-        req.session.usuario = {
+        const datosSession = {
             username: usuario.username,
             rol: usuario.rol
         };
+
+        req.session.usuario = datosSession;
+        await RedisService.guardarSesion(req.sessionID, datosSession);
 
         res.redirect(usuario.rol === 'admin' ? '/libros' : '/');
 
@@ -74,11 +79,17 @@ exports.login = async (req, res) => {
     }
 };
 
-exports.logout = (req, res) => {
-    req.session.destroy((err) => {
-        if (err) {
-            console.error('Error al cerrar sesión:', err);
-        }
+exports.logout = async (req, res) => {
+    try {
+        await RedisService.eliminarSesion(req.sessionID);
+        req.session.destroy((err) => {
+            if (err) {
+                console.error('Error al cerrar sesión:', err);
+            }
+            res.redirect('/auth/login');
+        });
+    } catch (error) {
+        console.error('Error al eliminar la sesión de Redis:', error);
         res.redirect('/auth/login');
-    });
+    }
 }; 

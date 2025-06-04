@@ -13,9 +13,6 @@ router.get('/nuevo', esAdmin, libroController.getNuevoLibroForm);
 router.post('/', esAdmin, libroController.createLibro);
 
 
-router.get('/:id', estaAutenticado, libroController.getLibroDetalle);
-
-
 router.get('/editar/:id', esAdmin, libroController.getEditarLibroForm);
 
 
@@ -23,5 +20,8 @@ router.put('/:id', esAdmin, libroController.updateLibro);
 
 
 router.delete('/:id', esAdmin, libroController.deleteLibro);
+
+// La ruta de detalle debe ir al final
+router.get('/:id', estaAutenticado, libroController.getLibroDetalle);
 
 module.exports = router; 

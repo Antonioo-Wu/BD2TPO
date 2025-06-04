@@ -1,0 +1,40 @@
+<%- include('../partials/header') %>
+
+<div class="container mt-4">
+    <h2>Historial de Libros Visitados</h2>
+    
+    <% if (historial && historial.length > 0) { %>
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Título</th>
+                        <th>Autor</th>
+                        <th>ISBN</th>
+                        <th>Fecha de Visita</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% historial.forEach(function(entrada) { %>
+                        <tr>
+                            <td><%= entrada.titulo %></td>
+                            <td><%= entrada.autor %></td>
+                            <td><%= entrada.isbn %></td>
+                            <td><%= new Date(entrada.fechaVisita).toLocaleString() %></td>
+                            <td>
+                                <a href="/libros/<%= entrada.id %>" class="btn btn-info btn-sm">Ver Detalle</a>
+                            </td>
+                        </tr>
+                    <% }); %>
+                </tbody>
+            </table>
+        </div>
+    <% } else { %>
+        <div class="alert alert-info">
+            No hay registros en tu historial de visitas.
+        </div>
+    <% } %>
+</div>
+
+<%- include('../partials/footer') %> 

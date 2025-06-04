@@ -1,4 +1,5 @@
 const Libro = require('../models/libro');
+const RedisService = require('../services/redisService');
 
 
 exports.getAllLibros = async (req, res) => {
@@ -150,7 +151,14 @@ exports.getLibroDetalle = async (req, res) => {
         if (!libro) {
             return res.status(404).send('Libro no encontrado');
         }
-        res.render('libros/detalle', { libro });
+
+        // Incrementar contador de visitas usando el título
+        const totalVisitas = await RedisService.incrementarVisitasLibro(libro.titulo);
+
+        res.render('libros/detalle', { 
+            libro,
+            totalVisitas
+        });
     } catch (error) {
         res.status(500).send('Error al obtener el detalle del libro');
     }

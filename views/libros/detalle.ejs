@@ -68,6 +68,15 @@
             display: flex;
             gap: 10px;
         }
+        .visitas-badge {
+            background-color: #6c757d;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 14px;
+            display: inline-block;
+            margin-left: 10px;
+        }
     </style>
 </head>
 <body>
@@ -76,7 +85,12 @@
             <a href="/libros">← Volver al Catálogo</a>
         </div>
 
-        <h1><%= libro.titulo %></h1>
+        <h1>
+            <%= libro.titulo %>
+            <span class="visitas-badge">
+                <%= totalVisitas %> visita<%= totalVisitas === 1 ? '' : 's' %>
+            </span>
+        </h1>
 
         <div class="libro-info">
             <div class="libro-campo">
