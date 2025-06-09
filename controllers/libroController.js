@@ -157,7 +157,7 @@ exports.getLibroDetalle = async (req, res) => {
             return res.status(404).send('Libro no encontrado');
         }
 
-        // Incrementar contador de visitas usando el título
+        
         const totalVisitas = await RedisService.incrementarVisitasLibro(libro.titulo);
 
         res.render('libros/detalle', { 

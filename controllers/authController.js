@@ -27,7 +27,7 @@ exports.registro = async (req, res) => {
 
         const nuevoUsuario = await Usuario.create({
             username,
-            password, // Nota: En una aplicación real, deberías hashear la contraseña
+            password, 
             rol
         });
 
@@ -43,7 +43,7 @@ exports.registro = async (req, res) => {
 
     } catch (error) {
         let mensajeError = 'Error al crear el usuario';
-        if (error.code === 11000) { // Error de MongoDB para duplicados
+        if (error.code === 11000) { 
             mensajeError = 'El nombre de usuario ya existe';
         }
         res.render('auth/registro', { error: mensajeError });
@@ -56,7 +56,7 @@ exports.login = async (req, res) => {
         
         const usuario = await Usuario.findOne({ username });
         
-        if (!usuario || usuario.password !== password) { // Nota: En una aplicación real, deberías comparar hashes
+        if (!usuario || usuario.password !== password) { 
             return res.render('auth/login', { 
                 error: 'Usuario o contraseña incorrectos' 
             });

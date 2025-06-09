@@ -7,9 +7,9 @@ const redis = new Redis({
 });
 
 class RedisService {
-    // Manejo de sesiones
+    
     static async guardarSesion(sessionId, datos) {
-        await redis.set(`sesion:${sessionId}`, JSON.stringify(datos), 'EX', 86400); // 24 horas
+        await redis.set(`sesion:${sessionId}`, JSON.stringify(datos), 'EX', 86400); 
     }
 
     static async obtenerSesion(sessionId) {
@@ -21,9 +21,9 @@ class RedisService {
         await redis.del(`sesion:${sessionId}`);
     }
 
-    // Contadores globales de visitas de libros
+    
     static async incrementarVisitasLibro(titulo) {
-        // Normalizar el título para usarlo como clave
+        
         const claveLibro = `libro:${titulo.toLowerCase().replace(/[^a-z0-9]/g, '_')}:visitas`;
         return await redis.incr(claveLibro);
     }
@@ -35,17 +35,17 @@ class RedisService {
     }
 
     static async obtenerLibroMasVisitado() {
-        // Obtener todas las claves que coincidan con el patrón de visitas de libros
+        
         const claves = await redis.keys('libro:*:visitas');
         let libroMasVisitado = null;
         let maxVisitas = 0;
 
-        // Iterar sobre todas las claves para encontrar el libro con más visitas
+        
         for (const clave of claves) {
             const visitas = parseInt(await redis.get(clave)) || 0;
             if (visitas > maxVisitas) {
                 maxVisitas = visitas;
-                // Extraer el título del libro de la clave (libro:titulo:visitas)
+                
                 libroMasVisitado = clave.split(':')[1].replace(/_/g, ' ');
             }
         }
@@ -61,7 +61,7 @@ class RedisService {
         const visitas = await Promise.all(
             keys.map(async (key) => {
                 const count = await redis.get(key);
-                // Extraer el título del libro de la clave
+                
                 const tituloNormalizado = key.split(':')[1];
                 const titulo = tituloNormalizado.replace(/_/g, ' ');
                 return {
@@ -73,7 +73,7 @@ class RedisService {
         return visitas;
     }
 
-    // Historial de libros visitados
+    
     static async agregarLibroAlHistorial(username, libroData) {
         const timestamp = new Date().toISOString();
         const entrada = {
@@ -81,10 +81,10 @@ class RedisService {
             fechaVisita: timestamp
         };
         
-        // Agregar al inicio de la lista
+        
         await redis.lpush(`historial:${username}`, JSON.stringify(entrada));
         
-        // Mantener solo los últimos 50 libros visitados
+        
         await redis.ltrim(`historial:${username}`, 0, 49);
     }
 
