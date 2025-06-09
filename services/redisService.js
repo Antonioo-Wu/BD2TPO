@@ -34,6 +34,28 @@ class RedisService {
         return parseInt(visitas) || 0;
     }
 
+    static async obtenerLibroMasVisitado() {
+        // Obtener todas las claves que coincidan con el patrón de visitas de libros
+        const claves = await redis.keys('libro:*:visitas');
+        let libroMasVisitado = null;
+        let maxVisitas = 0;
+
+        // Iterar sobre todas las claves para encontrar el libro con más visitas
+        for (const clave of claves) {
+            const visitas = parseInt(await redis.get(clave)) || 0;
+            if (visitas > maxVisitas) {
+                maxVisitas = visitas;
+                // Extraer el título del libro de la clave (libro:titulo:visitas)
+                libroMasVisitado = clave.split(':')[1].replace(/_/g, ' ');
+            }
+        }
+
+        return {
+            titulo: libroMasVisitado,
+            visitas: maxVisitas
+        };
+    }
+
     static async obtenerTotalVisitasLibros() {
         const keys = await redis.keys('libro:*:visitas');
         const visitas = await Promise.all(

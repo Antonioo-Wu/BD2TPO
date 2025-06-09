@@ -46,11 +46,16 @@ exports.getAllLibros = async (req, res) => {
             }
         }
 
-        const libros = await librosQuery;
+        const [libros, libroMasVisitado] = await Promise.all([
+            librosQuery,
+            RedisService.obtenerLibroMasVisitado()
+        ]);
+
         res.render('libros/index', { 
             libros, 
             busqueda: busqueda || '',
-            ordenar: ordenar || ''
+            ordenar: ordenar || '',
+            libroMasVisitado
         });
     } catch (error) {
         res.status(500).send('Error al obtener los libros');

@@ -366,6 +366,15 @@
             </form>
         </div>
 
+        <% if (libroMasVisitado && libroMasVisitado.titulo) { %>
+            <div style="background-color: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+                <h3 style="margin: 0; color: #333;">📈 Libro Más Visitado</h3>
+                <p style="margin: 10px 0 0 0; color: #666;">
+                    "<%= libroMasVisitado.titulo %>" con <%= libroMasVisitado.visitas %> visita<%= libroMasVisitado.visitas === 1 ? '' : 's' %>
+                </p>
+            </div>
+        <% } %>
+
         <div class="libro-grid">
             <% libros.forEach(libro => { %>
                 <div class="libro-card" data-id="<%= libro._id %>">
