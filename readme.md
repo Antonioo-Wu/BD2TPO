@@ -1,8 +1,8 @@
 # BD2TPO - Ejecución del Proyecto
 
 ## Requisitos previos
-- Node.js (v14 o superior)
-- npm (v6 o superior)
+- Node.js
+- npm
 - MongoDB en ejecución local o en la nube
 - Redis en ejecución local o en la nube
 
@@ -12,9 +12,6 @@
 npm install
 ```
 
-## Configuración
-
-1. Asegúrate de que MongoDB y Redis estén corriendo en tu máquina o accesibles desde la red. IMPORTANTE!!!
 
 ## Ejecución del proyecto
 
@@ -22,6 +19,6 @@ npm install
 npm start
 ```
 
-El servidor debería iniciar en el puerto configurado.
+El servidor debería iniciar en el puerto configurado. IMPORTANTE!!!
 
 
